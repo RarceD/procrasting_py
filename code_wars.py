@@ -3,20 +3,14 @@ def even_or_odd(number):
         return "Even"
     else:
         return "Odd"
-
-
 def positive_sum(arr):
     result = 0
     for i in arr:
         if i > 0:
             result += i
     return result
-
-
 def remove_char(s):
     return s[1:-1]
-
-
 def getCount(inputStr):
     num_vowels = 0
     vowel_letters = ('a', 'e', 'i', 'o', 'u')
@@ -24,15 +18,11 @@ def getCount(inputStr):
         if letter in vowel_letters:
             num_vowels += 1
     return num_vowels
-
-
 def get_middle(s):
     for letters in s:
         if len(s) >= 3:
             s = s[1:-1]
     return s
-
-
 def xo(s):
     counter_x = 0
     counter_o = 0
@@ -45,8 +35,6 @@ def xo(s):
         return True
     else:
         return False
-
-
 def persistence(n):
     if (n < 10):
         return 0
@@ -59,8 +47,6 @@ def persistence(n):
         times_done += 1
         n = solution
     return times_done
-
-
 def solution(number):
     solution = 0
     for i in range(1, number):
@@ -77,9 +63,6 @@ def digital_root(n):
             solution += int(str_number[x])
         n = solution
     return n
-
-
-
 
 def find_outlier(integers):
     odd_num = 0
