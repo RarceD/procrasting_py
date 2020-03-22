@@ -1,5 +1,5 @@
 import pygame
-import time
+
 pygame.init()
 
 win_x = 700
@@ -9,6 +9,12 @@ pygame.display.set_caption("My fucking game")  # title of this shit of game
 bg = pygame.image.load('Game/bg.jpg')
 clock = pygame.time.Clock()  # Don't have any idea about it
 
+#include the sound:
+# bulletSound = pygame.mixer.Sound('Game/bullet.wav')
+# hitSound = pygame.mixer.Sound('Game/hit.wav')
+
+music = pygame.mixer.music.load('Game/music.mp3')
+pygame.mixer.music.play(-1)
 
 class player(object):
     # Create a list of the pictures in Game Folder
@@ -51,7 +57,6 @@ class player(object):
         self.hitbox = (self.x + 20, self.y, 28, 60)
         pygame.draw.rect(win, (0, 0, 255), self.hitbox, 2)
 
-
 class projector (object):
     def __init__(self, x, y, radius, color, direction):
         self.x = x
@@ -63,7 +68,6 @@ class projector (object):
 
     def draw(self, win):
         pygame.draw.circle(win, self.color, (self.x, self.y), self.radius)
-
 
 class enemy (object):
     walkRight = [pygame.image.load('Game/R1E.png'), pygame.image.load('Game/R2E.png'), pygame.image.load('Game/R3E.png'), pygame.image.load('Game/R4E.png'), pygame.image.load('Game/R5E.png'), pygame.image.load(
@@ -114,7 +118,6 @@ class enemy (object):
     def hit(self):
         print("hit an enemy")
 
-
 # create a instance of the chracter and bullets
 font = pygame.font.SysFont('bitstreamverasans',30,True, True)
 p = player(100, win_y - 80, 64, 64)
@@ -151,8 +154,9 @@ while(run):
     for bullet in bullets:  # loop in the projectils created and check for colisions
         if (bullet.y - bullet.radius < e.hitbox[1] + e.hitbox[3]and bullet.y + bullet.radius > e.hitbox[1]):
             if (bullet.x + bullet.radius > e.hitbox[0] and bullet.x - bullet.radius < e.hitbox[0] + e.hitbox[2]):
+                # hitSound.play()
                 e.hit()
-                if (score > 10):
+                if (score > 9):
                     score = 0
                 else:
                     score+=1
@@ -165,6 +169,7 @@ while(run):
 
     keys = pygame.key.get_pressed()  # check the diferent letters of the key board
     if (keys[pygame.K_SPACE] and slow_bullets == 0):
+        # bulletSound.play()
         slow_bullets += 1
         if (p.left):
             facing = -1
