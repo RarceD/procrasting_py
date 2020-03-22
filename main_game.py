@@ -31,23 +31,49 @@ class player(object):
         self.left = False
         self.right = False
         self.walkCount = 0
-    def draw(self,win):
+        self.standing = True
+
+    def draw(self, win):
         if (self.walkCount + 1 >= 27):
             self.walkCount = 0
-        if (self.left):
-            win.blit(walkLeft[self.walkCount//3], (self.x, self.y))# The //3 is because if not is out of range
-            self.walkCount += 1
-        elif (self.right):
-            win.blit(walkRight[self.walkCount//3], (self.x, self.y))
-            self.walkCount += 1
+        if not (self.standing):
+            if (self.left):
+                # The //3 is because if not is out of range
+                win.blit(walkLeft[self.walkCount//3], (self.x, self.y))
+                self.walkCount += 1
+            elif (self.right):
+                win.blit(walkRight[self.walkCount//3], (self.x, self.y))
+                self.walkCount += 1
         else:
-           win.blit(char, (self.x, self.y))
+            if (self.right):
+                win.blit(walkRight[0], (self.x, self.y))
+            else:
+                win.blit(walkLeft[0], (self.x, self.y))
 
-p = player(100, win_y - 80, 64, 64)  # create a instance of the chracter
+
+class projector (object):
+    def __init__(self, x, y, radius, color, direction):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+        self.direction = direction
+        self.velocity = 15 * direction
+
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.radius)
+
+
+# create a instance of the chracter and bullets
+p = player(100, win_y - 80, 64, 64)
+bullets = []
+
 
 def reddrawGameWindow():
     win.blit(bg, (0, 0))
     p.draw(win)
+    for bullet in bullets:
+        bullet.draw(win)
     pygame.display.update()  # update the screen frames
 
 
@@ -57,23 +83,43 @@ while(run):
     # Check for events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            p.run = False
+            run = False
+    for bullet in bullets:
+        if bullet.x < win_x and bullet.x > 0:
+            bullet.x += bullet.velocity
+        else:
+            bullets.pop(bullets.index(bullet))  # Delete the objects
+
     keys = pygame.key.get_pressed()  # check the diferent letters of the key board
+    if (keys[pygame.K_SPACE]):
+        if (p.left):
+            facing = -1
+        else:
+            facing = 1
+        if (len(bullets) < 5):
+            bullets.append(projector(round(p.x + p.width//2),
+                                     round(p.y + p.height//2), 6, (250, 2, 2), facing))
+
     if (keys[pygame.K_RIGHT] and p.x < win_x - p.width - p.velocity):
         p.x += p.velocity
         p.right = True
         p.left = False
+        p.standing = False
     elif (keys[pygame.K_LEFT]and p.x > p.velocity):
         p.x -= p.velocity
         p.left = True
         p.right = False
+        p.standing = False
     else:
-        p.left = False  # This variables are for the movement animations
-        p.right = False
+        p.standing = True
         p.walkCount = 0
+
     if not (p.isJump):
-        if (keys[pygame.K_SPACE]):
+        if (keys[pygame.K_UP]):
             p.isJump = True
+            p.right = False
+            p.left = False
+            p.walkCount = 0
     else:
         if (p.jumpCount >= -10):
             neg = 1
