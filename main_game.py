@@ -1,6 +1,7 @@
 import pygame
 import time
 pygame.init()
+import kivi
 
 win = pygame.display.set_mode((700, 480))
 win_x = 700
@@ -25,7 +26,7 @@ class player(object):
         self.width = width
         self.x = x  # variables for the caracter
         self.y = y
-        self.velocity = 30
+        self.velocity = 20
         self.isJump = False  # Variables for jumpping
         self.jumpCount = 10
         self.left = False
@@ -64,14 +65,59 @@ class projector (object):
         pygame.draw.circle(win, self.color, (self.x, self.y), self.radius)
 
 
+class enemy (object):
+    walkRight = [pygame.image.load('Game/R1E.png'), pygame.image.load('Game/R2E.png'), pygame.image.load('Game/R3E.png'), pygame.image.load('Game/R4E.png'), pygame.image.load('Game/R5E.png'), pygame.image.load(
+        'Game/R6E.png'), pygame.image.load('Game/R7E.png'), pygame.image.load('Game/R8E.png'), pygame.image.load('Game/R9E.png'), pygame.image.load('Game/R10E.png'), pygame.image.load('Game/R11E.png')]
+    walkLeft = [pygame.image.load('Game/L1E.png'), pygame.image.load('Game/L2E.png'), pygame.image.load('Game/L3E.png'), pygame.image.load('Game/L4E.png'), pygame.image.load('Game/L5E.png'), pygame.image.load(
+        'Game/L6E.png'), pygame.image.load('Game/L7E.png'), pygame.image.load('Game/L8E.png'), pygame.image.load('Game/L9E.png'), pygame.image.load('Game/L10E.png'), pygame.image.load('Game/L11E.png')]
+
+    def __init__(self, x, y, width, height, end):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.end = end
+        self.path = [self.x, self.end]
+        self.walkCount = 0
+        self.vel = 6
+
+    def draw(self, win):
+        self.move()
+        if (self.walkCount + 1 >= 33):
+            self.walkCount = 0
+        if self.vel > 0:
+            win.blit(self.walkRight[self.walkCount//3], (self.x, self.y))
+            self.walkCount += 1
+        else:
+            win.blit(self.walkLeft[self.walkCount//3], (self.x, self.y))
+            self.walkCount += 1
+
+    def move(self):
+        if (self.vel > 0):
+            if (self.x + self.vel < self.path[1]):
+                self.x += self.vel
+            else:
+                self.vel *= -1
+                self.walkCount = 0
+        else:
+            if (self.x - self.vel > self.path[0]):
+                self.x += self.vel
+            else:
+                self.vel *= -1
+                self.walkCount = 0
+
+
 # create a instance of the chracter and bullets
 p = player(100, win_y - 80, 64, 64)
+e = enemy(100, 410, 64, 64, 450)
 bullets = []
 
 
 def reddrawGameWindow():
     win.blit(bg, (0, 0))
+    e.draw(win)
     p.draw(win)
+
     for bullet in bullets:
         bullet.draw(win)
     pygame.display.update()  # update the screen frames
@@ -99,7 +145,7 @@ while(run):
         if (len(bullets) < 5):
             bullets.append(projector(round(p.x + p.width//2),
                                      round(p.y + p.height//2), 6, (250, 2, 2), facing))
-
+ 
     if (keys[pygame.K_RIGHT] and p.x < win_x - p.width - p.velocity):
         p.x += p.velocity
         p.right = True
