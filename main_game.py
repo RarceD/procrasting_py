@@ -9,74 +9,81 @@ win_y = 500
 pygame.display.set_caption("My fucking game")
 
 # Create a list of the pictures in Game Folder
-walkRight = [pygame.image.load('Game/R1.png'), pygame.image.load('Game/R2.png'), pygame.image.load('Game/R3.png'), pygame.image.load('Game/R4.png'), pygame.image.load('Game/R5.png'), pygame.image.load('Game/R6.png'), pygame.image.load('Game/R7.png'), pygame.image.load('Game/R8.png'), pygame.image.load('Game/R9.png')]
-walkLeft = [pygame.image.load('Game/L1.png'), pygame.image.load('Game/L2.png'), pygame.image.load('Game/L3.png'), pygame.image.load('Game/L4.png'), pygame.image.load('Game/L5.png'), pygame.image.load('Game/L6.png'), pygame.image.load('Game/L7.png'), pygame.image.load('Game/L8.png'), pygame.image.load('Game/L9.png')]
+walkRight = [pygame.image.load('Game/R1.png'), pygame.image.load('Game/R2.png'), pygame.image.load('Game/R3.png'), pygame.image.load('Game/R4.png'), pygame.image.load(
+    'Game/R5.png'), pygame.image.load('Game/R6.png'), pygame.image.load('Game/R7.png'), pygame.image.load('Game/R8.png'), pygame.image.load('Game/R9.png')]
+walkLeft = [pygame.image.load('Game/L1.png'), pygame.image.load('Game/L2.png'), pygame.image.load('Game/L3.png'), pygame.image.load('Game/L4.png'), pygame.image.load(
+    'Game/L5.png'), pygame.image.load('Game/L6.png'), pygame.image.load('Game/L7.png'), pygame.image.load('Game/L8.png'), pygame.image.load('Game/L9.png')]
 bg = pygame.image.load('Game/bg.jpg')
 char = pygame.image.load('Game/standing.png')
 
-clock = pygame.time.Clock() # Don't have any idea about it
-height = 64
-width = 64
-x = 50 # variables for the caracter
-y = win_y - height - 30 
-velocity = 30
+clock = pygame.time.Clock()  # Don't have any idea about it
 
-isJump = False # Variables for jumpping
-jumpCount = 10
 
-left = False
-right = False
+class player(object):
+    def __init__(self, x, y, width, height):
+        self.height = height
+        self.width = width
+        self.x = x  # variables for the caracter
+        self.y = y
+        self.velocity = 30
+        self.isJump = False  # Variables for jumpping
+        self.jumpCount = 10
+        self.left = False
+        self.right = False
+        self.walkCount = 0
+    def draw(self,win):
+        if (self.walkCount + 1 >= 27):
+            self.walkCount = 0
+        if (self.left):
+            win.blit(walkLeft[self.walkCount//3], (self.x, self.y))# The //3 is because if not is out of range
+            self.walkCount += 1
+        elif (self.right):
+            win.blit(walkRight[self.walkCount//3], (self.x, self.y))
+            self.walkCount += 1
+        else:
+           win.blit(char, (self.x, self.y))
+
+p = player(100, win_y - 80, 64, 64)  # create a instance of the chracter
 
 def reddrawGameWindow():
-    global walkCount
-    win.blit(bg,(0,0))
-    if (walkCount + 1 >= 27):
-        walkCount = 0
-    if (left):
-        win.blit(walkLeft[walkCount//3], (x,y))
-        walkCount += 1
-    elif (right):
-        win.blit(walkRight[walkCount//3], (x,y))
-        walkCount += 1
-    else:
-        win.blit(char, (x,y))
-
-
+    win.blit(bg, (0, 0))
+    p.draw(win)
     pygame.display.update()  # update the screen frames
+
 
 run = True
 while(run):
-    pygame.time.delay(50) ##64x64 images
+    pygame.time.delay(50)  # 64x64 images
     # Check for events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            p.run = False
     keys = pygame.key.get_pressed()  # check the diferent letters of the key board
-    if (keys[pygame.K_RIGHT] and x < win_x - width - velocity):
-        x += velocity
-        right = True
-        left = False
-    elif (keys[pygame.K_LEFT]and x > velocity):
-        x -= velocity
-        left = True
-        right = False
+    if (keys[pygame.K_RIGHT] and p.x < win_x - p.width - p.velocity):
+        p.x += p.velocity
+        p.right = True
+        p.left = False
+    elif (keys[pygame.K_LEFT]and p.x > p.velocity):
+        p.x -= p.velocity
+        p.left = True
+        p.right = False
     else:
-        left = False #This variables are for the movement animations
-        right = False
-        walkCount = 0
-    if not (isJump):
+        p.left = False  # This variables are for the movement animations
+        p.right = False
+        p.walkCount = 0
+    if not (p.isJump):
         if (keys[pygame.K_SPACE]):
-            isJump = True
+            p.isJump = True
     else:
-        if (jumpCount >= -10):
+        if (p.jumpCount >= -10):
             neg = 1
-            if jumpCount < 0:
+            if p.jumpCount < 0:
                 neg = -1
-            y -= (jumpCount ** 2) * 0.5 * neg
-            jumpCount -= 1
+            p.y -= (p.jumpCount ** 2) * 0.5 * neg
+            p.jumpCount -= 1
         else:
-            jumpCount = 10
-            isJump = False
-    reddrawGameWindow() #For drawing
+            p.jumpCount = 10
+            p.isJump = False
+    reddrawGameWindow()  # For drawing
 
 pygame.quit()
