@@ -26,8 +26,13 @@ class Cat(object):
         self.y = y
         self.w = w
         self.l = l
-        self.vel = 10
+        self.vel = 15
+        self.jump = False
+        self.jump_count = 10
+        self.score = 0
+        self.max_score = 0
+
 
     def draw(self, win):
         win.blit(cat_picture, (self.x, self.y))
-        pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.w, self.l), 2)
+        # pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.w, self.l), 2)
