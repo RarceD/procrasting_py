@@ -89,8 +89,8 @@ def main():
     # add opengl to pygame
     pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
     # 45 degres poitn of view, 0.1 one means that the objects do not dissapear if I go far
-    #the third element is the near plane and the fourth is the far plane
-    gluPerspective(45, (display[0]/display[1]), 0.1, 100.0) 
+    # the third element is the near plane and the fourth is the far plane
+    gluPerspective(45, (display[0]/display[1]), 0.1, 100.0)
     # for visualize the cube
     glTranslatef(0, 0, -20)  # can change the perspective
     # for degrees coordenates
@@ -119,15 +119,21 @@ def main():
                     glTranslatef(0, 1, 0)
                 if (event.key == pygame.K_s):
                     glTranslatef(0, -1, 0)
-            if (event.type == pygame.MOUSEBUTTONDOWN): #catch the mouse to modified the zoom
+            if (event.type == pygame.MOUSEBUTTONDOWN):  # catch the mouse to modified the zoom
                 if (event.button == 4):
                     glTranslatef(0, 0, 1.0)
                 if (event.button == 5):
                     glTranslatef(0, 0, -1.0)
 
-        # Every frame I clear the last frame and I print new
         # glRotatef(1, 3, 1, 1)
+        # Every frame I clear the last frame and I print new
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        x = glGetDoublev(GL_MODELVIEW_MATRIX) #I can gete the position of the elements in the screen
+        camera_x = x[3][0]
+        camera_y = x[3][1]
+        camera_z = x[3][2]
+        # print(camera_x,camera_y,camera_z)
+
         Cube()
         pygame.display.flip()
         pygame.time.wait(10)
