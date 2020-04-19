@@ -148,56 +148,123 @@ class Base():
         win.blit(self.BASE_IMG, (self.x2, self.y))
 
 
-def draw_window(win, bird, pipes, base, score):
+def draw_window(win, birds, pipes, base, score):
     win.blit(BACKGROUND_IMD, (0, 0))  # The corner of the image
     for pipe in pipes:
         pipe.draw(win)
     text = FONT.render("Score: " + str(score), 1, (255, 255, 255))
-    win.blit(text, (WIN_WIDTH - 10 - text.get_width(),10))
+    win.blit(text, (WIN_WIDTH - 10 - text.get_width(), 10))
     base.draw(win)
-    bird.draw(win)
+    for bird in birds:
+        bird.draw(win)
     pygame.display.update()
 
 
-def main():
+def eval_genomes(genomes, config):
+    # For neat I need to pass a function with genomes (the neural networks) and config parameters
+    # I modified the function to allow multiple birds
+    birds = []
+    # I create the nets and the gens and keep it track of them
+    nets = []  # neural network
+    ge = []  # genome
+    #genomes is a tupple like this (1, value), so I have to loop like this:
+    for _, g in genomes:
+        net = neat.nn.FeedForwardNetwork.create(g, config)
+        nets.append(net)
+        birds.append(Bird(230, 350))
+        g.fitness = 0
+        ge.append(g)
+
+    score = 0
+    pipes = [Pipe(600)]
+    base = Base(700)
+    run = True
     pygame.init()
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     clock = pygame.time.Clock()
-    bird = Bird(230, 350)
-    base = Base(700)
-    pipes = [Pipe(600)]
-    score = 0
-    run = True
     while (run):
         clock.tick(30)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-        # bird.move()
+                pygame.quit()
+        # I have to determine to which pipe y has the network to look at
+        pipe_index = 0
+        if (len(birds) > 0):
+            if (len(pipes) > 1 and birds[0].x > pipes[0].x + pipes[0].PIPE_TOP.get_width()):
+                pipe_index = 1
+        else:
+            run = False
+            break
+        # pass the elements to the networks, every 30 frames the bird that is alive is going to increase its fitness
+        for x, bird in enumerate(birds):
+            bird.move()
+            ge[x].fitness += 0.1
+            # Set the outputs fo the neural network:
+            # I pass the y of the bird, the y of the top pipe and the y of the bottom pipe
+            output = nets[x].activate((bird.y, abs(
+                bird.y-pipes[pipe_index].height), abs(bird.y-pipes[pipe_index].bottom)))
+            if (output[0] > 0.6):
+                bird.jump()
+
         rem = []
         add_pipe = False
         for pipe in pipes:
             # If colision kill the game
-            if pipe.collision_detection(bird):
-                run = False
-            # If the x of the pipe is out the screen I crearte another
-            if pipe.x + pipe.PIPE_TOP.get_width() < -10:
-                rem.append(pipe)
+            for x, bird in enumerate(birds):
+                if pipe.collision_detection(bird):
+                    # If they die I remnove them
+                    ge[x].fitness -= 1
+                    birds.pop(x)
+                    nets.pop(x)
+                    ge.pop(x)
 
-            if not pipe.passed and pipe.x < bird.x:
-                pipe.passed = True
-                add_pipe = True
+                if not pipe.passed and pipe.x < bird.x:
+                    pipe.passed = True
+                    add_pipe = True
+            # If the x of the pipe is out the screen I crearte another
+            if (pipe.x + pipe.PIPE_TOP.get_width() < -10):
+                rem.append(pipe)
             pipe.move()
         if add_pipe:
+            for g in ge:
+                g.fitness += 5
             score += 1
             pipes.append(Pipe(600))
         for r in rem:
             pipes.remove(r)
-        if (bird.y + bird.img.get_height() > 730):
-            pass
-
+        for x, fird in enumerate(birds):
+            if (bird.y + bird.img.get_height() > 730 or bird.y < 10):
+                birds.pop(x)
+                nets.pop(x)
+                ge.pop(x)
         base.move()
-        draw_window(win, bird, pipes, base, score)
+        draw_window(win, birds, pipes, base, score)
 
 
-main()
+def run(config_path):
+    """
+    runs the NEAT algorithm to train a neural network to play.
+    I set all the prooperties that are in the same config file
+    """
+    config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                                neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                                config_path)
+    # Set the population
+    population = neat.Population(config)
+    # Show info in the console
+    population.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    population.add_reporter(stats)
+
+    # Set the fitnes function
+    winner = population.run(eval_genomes, 50)
+
+    # show final stats
+    print('\nBest genome:\n{!s}'.format(winner))
+
+
+if __name__ == "__main__":
+    local_dir = os.path.dirname(__file__)  # pass the config file
+    config_path = os.path.join(local_dir, "config-feedforward.txt")
+    run(config_path)  # to the function
