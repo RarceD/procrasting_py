@@ -3,13 +3,14 @@ import random
 import neat
 import os
 import time
+import math
 
 WIN_WIDTH = 600
 WIN_HEIGHT = 700
 pygame.font.init()
-FONT = pygame.font.SysFont("comicsans", 50)
+FONT = pygame.font.SysFont("comicsans", 40)
 win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-pygame.display.set_caption("Dot dead game")
+pygame.display.set_caption("Dot dead game - RarceD")
 generation = 0
 
 
@@ -23,7 +24,7 @@ class Dot():
     def draw(self, win):
         if not self.end:
             pygame.draw.circle(win, (0, 0, 0), (self.x, self.y), 5)
-            pygame.draw.circle(win, (255, 200, 250), (self.x, self.y), 4)
+            pygame.draw.circle(win, (201, 217, 24), (self.x, self.y), 4)
 
         else:
             pygame.draw.circle(win, (0, 0, 0), (self.x, self.y), 10)
@@ -50,8 +51,10 @@ class Obstacle():
         self.width = 30
 
     def draw(self, win):
-        pygame.draw.rect(win, (17, 18, 92),
+        pygame.draw.rect(win, (0, 0, 0),
                          (self.x, self.y, self.lenght, self.width))
+        pygame.draw.rect(win, (24, 111, 217),
+                         (self.x+5, self.y+5, self.lenght-10, self.width-10))
 
 
 def manual_movement(keys, dot, obstacle):
@@ -69,12 +72,12 @@ def manual_movement(keys, dot, obstacle):
 
 def draw_all(win, dots, dot_end, obstacle, number_dots, generation):
     win.fill([105, 167, 209])
-    text = FONT.render("Dot Game", 1, (255, 255, 255))
+    text = FONT.render("Neural Network - RarceD", 1, (11, 0, 107))
     win.blit(text, (WIN_WIDTH - 10 - text.get_width(), 6))
-    text_dots = FONT.render("Nº: " + str(number_dots), 1, (255, 0, 0))
-    win.blit(text_dots, (WIN_WIDTH - 10 - text.get_width(), 50))
-    text_gen = FONT.render("Gen: " + str(generation), 1, (255, 120, 20))
-    win.blit(text_gen, (WIN_WIDTH - 10 - text.get_width(), 100))
+    text_dots = FONT.render("Nº Dots: " + str(number_dots), 1, (11, 0, 107))
+    win.blit(text_dots, (WIN_WIDTH - 10 - text_dots.get_width(), 50))
+    text_gen = FONT.render("Gen: " + str(generation), 1, (221, 0, 107))
+    win.blit(text_gen, (10, 6))
     for dot in dots:
         dot.draw(win)
     dot_end.draw(win)
@@ -102,21 +105,22 @@ def eval_genomes(genomes, config):
         genome.fitness = 0  # Start the fitnes functions in 0
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         nets.append(net)
-        dots.append(Dot(120, 120, False))
+        # generate the dots in random places
+        dots.append(Dot(random.randint(80, 200),
+                        random.randint(80, 200), False))
         gen.append(genome)
         number_dots += 1
-
     # The end of the game is reach dot_end:
     dot_end = Dot(300, 600, True)
     # Aboiding the obstacle
     obstacle = Obstacle(0,  WIN_HEIGHT/2)
     # I start the game to train the generations:
     clock = pygame.time.Clock()
-    # If they speend to much time I kill them
+    # If they spend to much time I kill them
     start_time = time.time()
     run = True
     while (run and len(dots)):
-        clock.tick(30)
+        clock.tick(30)  # Every second it run 30 times
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -129,63 +133,73 @@ def eval_genomes(genomes, config):
 
         # First I give fitness for been alive:
         # give each bird a fitness of 0.1 for each frame it stays alive
-        zones = WIN_HEIGHT/7
-
         for index, dot in enumerate(dots):
-            reward = int(dot.y/zones)
-            gen[index].fitness += 0.1*reward
-            # send dot x,y and dot_end location and determine from network whether to jump or not
-            output_1 = nets[dots.index(dot)].activate(
-                (dot.x, dot.y, dot_end.y))
-            output_2 = nets[dots.index(dot)].activate(
-                (dot.x, dot.y, dot_end.x))
+            # I evaluate the distance between point and end
+            distance = math.ceil(math.sqrt(abs(dot.x - dot_end.x) **
+                                 2 + abs(dot.y - dot_end.y)**2))
+            # More distance =  less fitness
+            gen[index].fitness += (10.0/distance)
 
+            # If they catch the end kill them but also reward
+            if (distance < 30):
+                gen[index].fitness += 30.0
+                try:
+                    nets.pop(index)
+                    gen.pop(index)
+                    dots.pop(index)
+                    number_dots -= 1
+                except: 
+                    pass
+
+            """
+            2 inputs and 4 outputs
+                Inputs:
+                    -Distance dot-end x
+                    -Distance dot-end x
+                Outputs:
+                    -Up
+                    -Down
+                    -Left
+                    -Right
+            """
+            output = nets[index].activate(
+                (abs(dot.y - dot_end.y), abs(dot.x - dot_end.x)))
             # we use a tanh activation function so result will be between -1 and 1. if over 0.5 jump
-            if not output_1[0] > 0.5:
+            if (output[0] > 0.5):
                 dot.move_down()
-            if output_2[0] > 0.5:
+            if (output[1] > 0.5):
+                dot.move_up()
+            if (output[2] > 0.5):
                 dot.move_left()
-            else:
+            if (output[3] > 0.5):
                 dot.move_right()
 
-            # if output[1] > 0.5:
-            #    dot.move_down()
-            # if output[2] > 0.5:
-            #    dot.move_left()
-            # if output[3] > 0.5:
-            #    dot.move_right()
-
-        corner_x = obstacle.x + obstacle.lenght
-        # corner_y=obstacle
         # Check for colisions:
         for index, dot in enumerate(dots):
             kill_dot = False
             # Chech the limits of the screen:
             if (dot.y > WIN_HEIGHT or dot.y < 0 or dot.x > WIN_WIDTH):
                 kill_dot = True
-            if (dot.y > obstacle.y and dot.y < obstacle.y + obstacle.width +15 and dot.x < obstacle.x+obstacle.lenght):
+            # Chech the limits with the obstacle:
+            if (dot.y > obstacle.y and dot.y < obstacle.y + obstacle.width + 15 and dot.x < obstacle.x+obstacle.lenght):
                 kill_dot = True
-
-            # if (dot.y < obstacle.y + obstacle.width + 15 and dot.y > obstacle.y and dot.x < obstacle.x+obstacle.lenght):
-
-            if (time.time()-start_time >= 3):
-                gen[dots.index(dot)].fitness -= 40
+            # Check if they spend so much time
+            if (time.time()-start_time >= 5):
+                gen[dots.index(dot)].fitness -= 30
                 kill_dot = True
+            # If there is any collision I kill the dots and punish them
             if kill_dot:
                 gen[dots.index(dot)].fitness -= 10
                 nets.pop(dots.index(dot))
                 gen.pop(dots.index(dot))
                 dots.pop(dots.index(dot))
                 number_dots -= 1
-            # If there is any collision I kill the birds
         draw_all(win, dots, dot_end, obstacle, number_dots, generation)
 
 
 def run(config_file):
     """
-    runs the NEAT algorithm to train a neural network.
-    :param config_file: location of config file
-    :return: None
+    runs the NEAT algorithm to train a neural network to move a fucking dot
     """
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
@@ -193,16 +207,13 @@ def run(config_file):
 
     # Create the population, which is the top-level object for a NEAT run.
     p = neat.Population(config)
-
     # Add a stdout reporter to show progress in the terminal.
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
     # p.add_reporter(neat.Checkpointer(5))
-
     # Run for up to 50 generations.
-    winner = p.run(eval_genomes, 200)
-
+    winner = p.run(eval_genomes, 100)
     # show final stats
     print('\nBest genome:\n{!s}'.format(winner))
 
