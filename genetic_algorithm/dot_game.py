@@ -2,6 +2,7 @@ import pygame
 import random
 import neat
 import os
+import time
 
 WIN_WIDTH = 600
 WIN_HEIGHT = 700
@@ -16,7 +17,7 @@ class Dot():
     def __init__(self, x, y, end):
         self.x = x
         self.y = y
-        self.vel = 5
+        self.vel = 8
         self.end = end
 
     def draw(self, win):
@@ -45,7 +46,7 @@ class Obstacle():
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.lenght = WIN_WIDTH-100
+        self.lenght = WIN_WIDTH-200
         self.width = 30
 
     def draw(self, win):
@@ -66,12 +67,14 @@ def manual_movement(keys, dot, obstacle):
         dot.x -= dot.vel
 
 
-def draw_all(win, dots, dot_end, obstacle, number_dots):
+def draw_all(win, dots, dot_end, obstacle, number_dots, generation):
     win.fill([105, 167, 209])
     text = FONT.render("Dot Game", 1, (255, 255, 255))
     win.blit(text, (WIN_WIDTH - 10 - text.get_width(), 6))
     text_dots = FONT.render("Nº: " + str(number_dots), 1, (255, 0, 0))
     win.blit(text_dots, (WIN_WIDTH - 10 - text.get_width(), 50))
+    text_gen = FONT.render("Gen: " + str(generation), 1, (255, 120, 20))
+    win.blit(text_gen, (WIN_WIDTH - 10 - text.get_width(), 100))
     for dot in dots:
         dot.draw(win)
     dot_end.draw(win)
@@ -109,6 +112,8 @@ def eval_genomes(genomes, config):
     obstacle = Obstacle(0,  WIN_HEIGHT/2)
     # I start the game to train the generations:
     clock = pygame.time.Clock()
+    # If they speend to much time I kill them
+    start_time = time.time()
     run = True
     while (run and len(dots)):
         clock.tick(30)
@@ -124,8 +129,11 @@ def eval_genomes(genomes, config):
 
         # First I give fitness for been alive:
         # give each bird a fitness of 0.1 for each frame it stays alive
+        zones = WIN_HEIGHT/7
+
         for index, dot in enumerate(dots):
-            gen[index].fitness += 0.1
+            reward = int(dot.y/zones)
+            gen[index].fitness += 0.1*reward
             # send dot x,y and dot_end location and determine from network whether to jump or not
             output_1 = nets[dots.index(dot)].activate(
                 (dot.x, dot.y, dot_end.y))
@@ -133,9 +141,7 @@ def eval_genomes(genomes, config):
                 (dot.x, dot.y, dot_end.x))
 
             # we use a tanh activation function so result will be between -1 and 1. if over 0.5 jump
-            if output_1[0] > 0.5:
-                dot.move_up()
-            else:
+            if not output_1[0] > 0.5:
                 dot.move_down()
             if output_2[0] > 0.5:
                 dot.move_left()
@@ -149,27 +155,30 @@ def eval_genomes(genomes, config):
             # if output[3] > 0.5:
             #    dot.move_right()
 
+        corner_x = obstacle.x + obstacle.lenght
+        # corner_y=obstacle
         # Check for colisions:
         for index, dot in enumerate(dots):
             kill_dot = False
-            if (dot.y < WIN_HEIGHT):
-                # if (dot.y > obstacle.y - 15 and dot.y < obstacle.y + obstacle.width and dot.x < obstacle.x+obstacle.lenght):
+            # Chech the limits of the screen:
+            if (dot.y > WIN_HEIGHT or dot.y < 0 or dot.x > WIN_WIDTH):
                 kill_dot = True
-            if (dot.y > 0):
-                # if (dot.y < obstacle.y + obstacle.width + 15 and dot.y > obstacle.y and dot.x < obstacle.x+obstacle.lenght):
-                kill_dot = True
-            if (dot.x < WIN_WIDTH):
-                kill_dot = True
-            if (dot.x > 0):
+            if (dot.y > obstacle.y and dot.y < obstacle.y + obstacle.width +15 and dot.x < obstacle.x+obstacle.lenght):
                 kill_dot = True
 
-            # If there is any collision I kill the birds
+            # if (dot.y < obstacle.y + obstacle.width + 15 and dot.y > obstacle.y and dot.x < obstacle.x+obstacle.lenght):
+
+            if (time.time()-start_time >= 3):
+                gen[dots.index(dot)].fitness -= 40
+                kill_dot = True
             if kill_dot:
                 gen[dots.index(dot)].fitness -= 10
                 nets.pop(dots.index(dot))
                 gen.pop(dots.index(dot))
                 dots.pop(dots.index(dot))
-        draw_all(win, dots, dot_end, obstacle, number_dots)
+                number_dots -= 1
+            # If there is any collision I kill the birds
+        draw_all(win, dots, dot_end, obstacle, number_dots, generation)
 
 
 def run(config_file):
