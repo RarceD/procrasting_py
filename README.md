@@ -17,6 +17,6 @@ Not very ambitious,
 - Face_detection_game -> Control the previous game with your face
 ### Genetic Algorithm
 - Genetic_algorithm -> Dot following another dot
-- Pole balancing
-![alt text](C:\Users\Tecnica2\Desktop\VYRSA\procrasting_py\genetic_algorithm\dot_follower\dot_game_genetic.png "YAS")
+![alt text](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG "YAS")
+- Pole balancing:
 
