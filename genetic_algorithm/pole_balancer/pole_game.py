@@ -22,6 +22,8 @@ class Pole:
         self.vel = 5
         self.eq = Equilibrium(self.x + self.lenght / 2,
                               self.y, self.pole_height)
+        self.m = 2
+        self.aceleration =0 
 
     def draw(self, win):
         pygame.draw.rect(win, (0, 0, 0),
@@ -29,6 +31,8 @@ class Pole:
         pygame.draw.rect(win, (24, 111, 217),
                          (self.x+5, self.y+5, self.lenght-10, self.width-10))
         self.eq.draw(win, self.x + self.lenght / 2)
+    def move(self, time):
+        
 
 
 class Equilibrium():
@@ -46,8 +50,6 @@ class Equilibrium():
                          (x-10 + off, WIN_HEIGHT - self.pole_height - 25 + off, self.width - 2*off, self.pole_height - 2*off))
 
 
-
-
 class Ball:
     def __init__(self, x, y, t):
         self.x = x
@@ -56,9 +58,10 @@ class Ball:
         self.y = 0  # current position
         self.v = 0  # the final velocity
         self.start_time = t
+        self.m = 2
 
     def move(self, time):
-        t = time -self.start_time
+        t = time - self.start_time
         self.v = GRAVITY * t
         self.y = self.y_0 + self.v_0*t + 0.5*GRAVITY*t*t
         self.y_0 = self.y
@@ -70,9 +73,11 @@ class Ball:
 
     def draw(self, win):
         pygame.draw.circle(win, (0, 0, 0), (int(self.x), int(self.y)), 20)
-        pygame.draw.circle(win, (150, 17, 133), (int(self.x), int(self.y)), 18)
+        pygame.draw.circle(win, (150, 17, 133), (int(self.x), int(self.y)), 16)
 
 
+
+        
 
 def draw_all(win, pole, time, balls):
     win.fill([105, 167, 209])
@@ -113,13 +118,12 @@ while (run):
         if event.type == pygame.MOUSEBUTTONDOWN:
             (x, y) = pygame.mouse.get_pos()
             t = time.time()
-            balls.append(Ball(x, y,t))
+            balls.append(Ball(x, y, t))
     if len(balls) > 0:
-        # a = time.time()
+        t = time.time()
         for ball in balls:
-            t = time.time()
             ball.move(t)
 
     keys = pygame.key.get_pressed()
     manual_movement(keys, pole)
-    draw_all(WIN, pole, ' %.2f' % (time.time() -start_time), balls)
+    draw_all(WIN, pole, ' %.2f' % (time.time() - start_time), balls)
