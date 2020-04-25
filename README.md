@@ -1,6 +1,6 @@
 ## STATUS NOTE ##
 
-This is just a learnign curve of python:
+This is just a learning curve of python:
 
  - First make a not shameless game.
  - Graphical user interface with App.
@@ -17,9 +17,15 @@ Not very ambitious,
 - Face_detection_game -> Control the previous game with your face
 ### Genetic Algorithm
 - Genetic_algorithm -> Dot following another dot
-
-![Playing](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG =250x250)
+a
+![](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG =300x500)
+b
+![](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG=300x500)
+c
 ![Playing2](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG)
-
+d
+![](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG =300x)
+e
+<img src="https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG" alt="drawing" width="200"/>
 - Pole balancing:
 
