@@ -18,9 +18,8 @@ Not very ambitious,
 ### Genetic Algorithm
 - Genetic_algorithm -> Dot following another dot
 
-![Playing](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG)
+![Playing](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG=250x400))
 
-!["Playing2"](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG)
 
 - Pole balancing:
 
