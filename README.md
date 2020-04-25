@@ -17,15 +17,6 @@ Not very ambitious,
 - Face_detection_game -> Control the previous game with your face
 ### Genetic Algorithm
 - Genetic_algorithm -> Dot following another dot
-a
-![](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG =300x500)
-b
-![](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG=300x500)
-c
-![Playing2](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG)
-d
-![](https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG =300x)
-e
-<img src="https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG" alt="drawing" width="200"/>
+<img src="https://github.com/RarceD/procrasting_py/blob/master/genetic_algorithm/dot_follower/dot_game_genetic.PNG" alt="drawing" width="500"/>
 - Pole balancing:
 
