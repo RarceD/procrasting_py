@@ -4,6 +4,7 @@ import math
 import random
 import neat
 import os
+import pymunk
 
 WIN_HEIGHT = 600
 WIN_WIDTH = 400
