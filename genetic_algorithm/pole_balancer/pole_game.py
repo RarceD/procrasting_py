@@ -202,6 +202,7 @@ def run(config_file):
     winner = p.run(eval_genomes, 50)
     # show final stats
     print('\nBest genome:\n{!s}'.format(winner))
+    print("HOLA")
 
 
 if __name__ == '__main__':
