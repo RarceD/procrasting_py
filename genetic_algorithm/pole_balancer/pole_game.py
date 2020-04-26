@@ -36,6 +36,7 @@ class Ball:
         self.jump_counter = 20
         self.num = 1
         self.direction = 1
+        self.see_platform = 2
 
     def move(self, platforms):
         self.y += self.vel * self.direction
@@ -70,18 +71,23 @@ class Ball:
             self.x += -self.vel
 
 
-def draw_all(win,  balls, platforms, time, max_height):
+def draw_all(win,  balls, platforms, time, max_height, generation):
     win.fill([105, 167, 209])
     text = FONT.render("Pole Play - RarceD", 1, (11, 0, 107))
     win.blit(text, (WIN_WIDTH - 10 - text.get_width(), 10))
-    text_time = FONT.render("Time: " + str(time) + "s", 1, (221, 0, 107))
-    win.blit(text_time, (10, 6))
+    text_time = FONT.render("Time: " + str(time) + "s", 1, (11, 0, 107))
+    win.blit(text_time, (10, 5))
     text_height = FONT.render(
         str(WIN_HEIGHT-max_height) + " m", 1, (11, 0, 107))
     win.blit(text_height, (10, 25))
+    text_gen = FONT.render("Gen: " + str(generation), 1, (221, 0, 107))
+    win.blit(text_gen, (10, 45))
 
     for ball in balls:
         ball.draw(win)
+        pygame.draw.line(win, (0, 0, 0), (ball.x, ball.y),
+                         (platforms[ball.see_platform ].x, platforms[ball.see_platform ].y), 2)
+
     for platform in platforms:
         platform.draw(win)
     pygame.display.update()
@@ -123,7 +129,7 @@ def eval_genomes(genomes, config):
     plat_pos_y = WIN_HEIGHT/3
     platforms = []
     platforms.append(Platform(50, plat_pos_y))
-    platforms.append(Platform(WIN_WIDTH/2+50, plat_pos_y * 2-100))
+    platforms.append(Platform(WIN_WIDTH/2+10, plat_pos_y * 2-50))
     platforms.append(Platform(50, plat_pos_y * 3 - 100))
     # A variable to measure the max jump
     max_height = WIN_HEIGHT
@@ -133,6 +139,7 @@ def eval_genomes(genomes, config):
     start_time = time.time()
 
     run = True
+    time_check_fitness = 1
     while (run):
         clock.tick(30)  # Every second it run 30 times
         for event in pygame.event.get():
@@ -143,16 +150,18 @@ def eval_genomes(genomes, config):
                 break
 
         for index, ball in enumerate(balls):
-            i = 0
-            if (ball.y > platforms[1].y):
-                i = 2
-            elif (ball.y > platforms[0].y):
-                i = 1
+            reward_platform = False
+            if (ball.x < WIN_WIDTH/2 - 100):
+                reward_platform = True
+                ball.see_platform = 1
+            else:
+                ball.see_platform = 2
+
             # There are 4 inputs, distances to the nearest platform and their own x and y
-            distance_x = abs(platforms[i].x-ball.x)
-            distance_y = abs(platforms[i].y-ball.y)
+            distance_x = abs(platforms[ball.see_platform].x-ball.x)
+            distance_y = abs(platforms[ball.see_platform].y-ball.y)
             output = nets[index].activate(
-                (distance_x, ball.x, distance_y, ball.y))
+                (distance_x, distance_y))
             # we use a tanh activation function so result will be between -1 and 1. if over 0.5 jump
             if (output[0] > 0.5):
                 ball.move_left()
@@ -161,9 +170,13 @@ def eval_genomes(genomes, config):
             ball.move(platforms)
             if (max_height > ball.y):
                 max_height = ball.y
+            # I fitness every second
+            if (time.time()-start_time >= time_check_fitness):
                 gen[index].fitness += max_height/1000.0
-
-            if (time.time()-start_time >= 5):
+                if (reward_platform):
+                    gen[index].fitness += 10.0
+                time_check_fitness += 1
+            if (time.time()-start_time >= 4):
                 run = False
         draw_all(WIN, balls, platforms, ' %.2f' %
                  (time.time() - start_time), max_height, generation)
