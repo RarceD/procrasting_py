@@ -1,6 +1,9 @@
 import pygame
 import time
 import math
+import random
+import neat
+import os
 
 WIN_HEIGHT = 600
 WIN_WIDTH = 400
@@ -8,6 +11,7 @@ pygame.font.init()
 FONT = pygame.font.SysFont("comicsans", 30)
 WIN = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 pygame.display.set_caption("Try to Balance")
+generation = 0
 
 
 class Platform:
@@ -45,7 +49,6 @@ class Ball:
             self.jump_counter = 20
         if (self.y < 0):
             self.y = WIN_HEIGHT
-
 
     def colision(self, platforms):
         for platform in platforms:
@@ -91,22 +94,45 @@ def manual_movement(keys, ball):
         ball.move_left()
 
 
-def main():
-    max_height = WIN_HEIGHT
-    run = True
+def eval_genomes(genomes, config):
+    # get the global variables to store the generation number and pygame win
+    global WIN, generation
+    generation += 1
+    """
+    I create the list holding:
+        Genomes gen[]
+        Neural Network asociate nets[]
+        Dot to play dots[]
+    """
+    gen = []
+    nets = []
+    dots = []
+    balls = []
+
+    # I create all the balls to train:
+    for genome_id, genome in genomes:
+        genome.fitness = 0  # Start the fitnes functions in 0
+        net = neat.nn.FeedForwardNetwork.create(genome, config)
+        nets.append(net)
+        # generate the balls in random places
+        balls.append(Ball(random.randint(WIN_WIDTH/2, WIN_WIDTH-50),
+                          random.randint(WIN_HEIGHT - 50 - 20, WIN_HEIGHT - 50)))
+        gen.append(genome)
+
+    # I create the platforms:
     plat_pos_y = WIN_HEIGHT/3
     platforms = []
     platforms.append(Platform(50, plat_pos_y))
     platforms.append(Platform(WIN_WIDTH/2+50, plat_pos_y * 2-100))
     platforms.append(Platform(50, plat_pos_y * 3 - 100))
-
+    # A variable to measure the max jump
+    max_height = WIN_HEIGHT
     # I start the game to train the generations:
     clock = pygame.time.Clock()
     # If they spend to much time I kill them
     start_time = time.time()
-    balls = []
-    balls.append(Ball(WIN_WIDTH-50, WIN_HEIGHT - 50))
-    ball = balls[0]
+
+    run = True
     while (run):
         clock.tick(30)  # Every second it run 30 times
         for event in pygame.event.get():
@@ -116,15 +142,58 @@ def main():
                 quit()
                 break
 
-        ball.move(platforms)
-        if (max_height > ball.y):
-            max_height = ball.y
+        for index, ball in enumerate(balls):
+            i = 0
+            if (ball.y > platforms[1].y):
+                i = 2
+            elif (ball.y > platforms[0].y):
+                i = 1
+            # There are 4 inputs, distances to the nearest platform and their own x and y
+            distance_x = abs(platforms[i].x-ball.x)
+            distance_y = abs(platforms[i].y-ball.y)
+            output = nets[index].activate(
+                (distance_x, ball.x, distance_y, ball.y))
+            # we use a tanh activation function so result will be between -1 and 1. if over 0.5 jump
+            if (output[0] > 0.5):
+                ball.move_left()
+            if (output[1] > 0.5):
+                ball.move_right()
+            ball.move(platforms)
+            if (max_height > ball.y):
+                max_height = ball.y
+                gen[index].fitness += max_height/1000.0
 
-        keys = pygame.key.get_pressed()
-        manual_movement(keys, ball)
-
+            if (time.time()-start_time >= 5):
+                run = False
         draw_all(WIN, balls, platforms, ' %.2f' %
-                 (time.time() - start_time), max_height)
+                 (time.time() - start_time), max_height, generation)
 
 
-main()
+def run(config_file):
+    """
+    runs the NEAT algorithm to train a neural network to move a fucking dot
+    """
+    config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                                neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                                config_file)
+
+    # Create the population, which is the top-level object for a NEAT run.
+    p = neat.Population(config)
+    # Add a stdout reporter to show progress in the terminal.
+    p.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
+    # p.add_reporter(neat.Checkpointer(5))
+    # Run for up to 50 generations.
+    winner = p.run(eval_genomes, 50)
+    # show final stats
+    print('\nBest genome:\n{!s}'.format(winner))
+
+
+if __name__ == '__main__':
+    # Determine path to configuration file. This path manipulation is
+    # here so that the script will run successfully regardless of the
+    # current working directory.
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, 'config-feedforward.txt')
+    run(config_path)
