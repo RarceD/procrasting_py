@@ -19,15 +19,29 @@ world = world(gravity=(0, -9.8), doSleep=True)
 ground_body = world.CreateStaticBody(
     position=(0, 1), shapes=polygonShape(box=(50, 5)))
 # Create a dynamic body
-dynamic_body = world.CreateDynamicBody(position=(10, 15), angle=PI/3)
+body_1 = world.CreateDynamicBody(position=(10, 15), angle=PI/3)
+body_2 = world.CreateDynamicBody(position=(10, 15), angle=PI/3)
+rj = world.CreateRevoluteJoint(
+    bodyA=body_1, 
+    bodyB=body_2, 
+    anchor=body_1.worldCenter,
+    lowerAngle = -PI, # -90 degrees
+    upperAngle = PI, #  45 degrees
+    enableLimit = True,
+    maxMotorTorque = 10.0,
+    motorSpeed = 0.0,
+    enableMotor = True,
+    )
 # And add a box fixture onto it (with a nonzero density, so it will move)
-box = dynamic_body.CreatePolygonFixture(box=(2, 1), density=1, friction=0.3)
+box = body_1.CreatePolygonFixture(box=(2, 1), density=1, friction=0.3)
+box2 = body_2.CreatePolygonFixture(box=(0.5, 3), density=1, friction=0.3)
 
 colors = {
     staticBody: (3, 37, 173, 0),
     dynamicBody: (140, 7, 47, 0)
 }
 running = True
+move_x = False
 while running:
     # Check the event queue
     for event in pygame.event.get():
@@ -42,11 +56,19 @@ while running:
             # I have to change the oprientation of the axes: pygame!=box2D
             vertices = [(body.transform * v) * PPM for v in shape.vertices]
             vertices = [(v[0], SCREEN_HEIGHT - v[1]) for v in vertices]
-            pygame.draw.polygon(win, colors[body.type], vertices)
+            if (body == 0):
+                pygame.draw.polygon(win, colors[body.type], vertices)
+            else:
+                pygame.draw.polygon(win, colors[body.type], vertices)
+
+    #for moving the box
+    if move_x:
+        body_1.position+=(0.1,0)
+        move_x = False  
+
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_UP:
-            dynamic_body = world.CreateDynamicBody(position=(10, 15), angle=PI/3)
-            box = dynamic_body.CreatePolygonFixture(box=(2, 1), density=1, friction=0.3)
+            move_x = True
     # this quantity is the times/second I get the physics calculations, fix value better
     world.Step(TIME_STEP, 10, 10)
     # Flip the screen and try to keep at the target FPS
