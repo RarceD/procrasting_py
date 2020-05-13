@@ -3,14 +3,20 @@ def even_or_odd(number):
         return "Even"
     else:
         return "Odd"
+
+
 def positive_sum(arr):
     result = 0
     for i in arr:
         if i > 0:
             result += i
     return result
+
+
 def remove_char(s):
     return s[1:-1]
+
+
 def getCount(inputStr):
     num_vowels = 0
     vowel_letters = ('a', 'e', 'i', 'o', 'u')
@@ -18,11 +24,15 @@ def getCount(inputStr):
         if letter in vowel_letters:
             num_vowels += 1
     return num_vowels
+
+
 def get_middle(s):
     for letters in s:
         if len(s) >= 3:
             s = s[1:-1]
     return s
+
+
 def xo(s):
     counter_x = 0
     counter_o = 0
@@ -35,6 +45,8 @@ def xo(s):
         return True
     else:
         return False
+
+
 def persistence(n):
     if (n < 10):
         return 0
@@ -47,6 +59,8 @@ def persistence(n):
         times_done += 1
         n = solution
     return times_done
+
+
 def solution(number):
     solution = 0
     for i in range(1, number):
@@ -63,6 +77,7 @@ def digital_root(n):
             solution += int(str_number[x])
         n = solution
     return n
+
 
 def find_outlier(integers):
     odd_num = 0
@@ -110,8 +125,42 @@ def high_and_low(numbers):
     return str(max(numbers)) + ' '+str(min(numbers))
 
 
-    # return str(numbers_compare[0])+ ' ' +  str(numbers_compare[len(numbers_compare-1)])
-print(high_and_low("4 5 29 54 4 0 -214 542 -64 1 -3 6 -6"))  # , "542 -214"))
+def filter_list(l):
+    sol = []
+    for num in l:
+        if type(num) == type(12):
+            sol.append(num)
+    return sol
+
+
+def openOrSenior(data):
+    sol = []
+    for pair in data:
+        if (pair[0] >= 55 and pair[1] > 7):
+            sol.append('Senior')
+        else:
+            sol.append('Open')
+    return sol
+
+
+def array_diff(a, b):
+    sol = []
+    index = 0
+    if len(b)>0:
+        for elem in a:
+            for rem in b:
+                if elem != rem:
+                    sol.append(elem)
+            index+=1
+        return sol
+    else:
+        return a
+
+
+print(array_diff([1,2,2], []))
+print(array_diff([1, 2, 2], [1]))
+print(array_diff([-17, -13, -15, -13, 0, 5, -12, -8, 6, -4, -19, 1, 0, -4],[-10, 8]))
+
 
 # programming language:
 
