@@ -4,7 +4,7 @@ import pygame
 
 # print ('Argument List:', str(sys.argv))
 # palabra = str(sys.argv[1])
-palabra = 'payaso'
+palabra = 'elefantes'
 silabas = silabizer()
 syllables = silabas(palabra)
 print(syllables)
@@ -30,10 +30,10 @@ centerLetter = {
     3: 30,
     4: 50,
     5: 60,
-    6: 65,
+    6: 78,
     7: 70,
     8: 80,
-    9: 90,
+    9: 165,
 }
 colors = [
     (230, 21, 21),
@@ -79,36 +79,46 @@ def renderGameWindow():
     win.blit(text, (win_x/2 - adjust, 370))
     print(palabra, len(palabra))
     # Print the syllables:
+    colorIndex = 0
     for i, syl in enumerate(syllables):
         t = font.render(str(syl), 1, BLACK_COLOR)
         x = win_x/2 - adjust + index
         y = 450
         win.blit(t, (x, y))
-
+        sizeBox = 30
+        distanceBetweenCube = 27
         print(len(str(syl)))
         if (len(str(syl)) == 1):
-            pygame.draw.rect(win, BLACK_COLOR, (x-8, y + 50 + 8, 40, 40))
+            pygame.draw.rect(win, BLACK_COLOR, (x-8, y + 50 + 8, sizeBox, sizeBox))
             pygame.draw.rect(
-                win, colors[i], (x + 3-8, y + 3 + 50 + 8, 40-6, 40-6))
+                win, colors[colorIndex], (x + 3-8, y + 3 + 50 + 8, sizeBox-6, sizeBox-6))
             index += 0
         if (len(str(syl)) == 2):
-            pygame.draw.rect(win, BLACK_COLOR, (x-8, y + 50 + 8, 40, 40))
-            pygame.draw.rect(
-                win, colors[i], (x + 3-8, y + 3 + 50 + 8, 40-6, 40-6))
-            pygame.draw.rect(win, BLACK_COLOR, (x-8, y + 50 + 8, 40, 40))
-            pygame.draw.rect(
-                win, colors[i], (x + 3-8, y + 3 + 50 + 8, 40-6, 40-6))
+            pygame.draw.rect(win, BLACK_COLOR, (x-8, y + 50 + 8, sizeBox, sizeBox))
+            pygame.draw.rect(win, colors[colorIndex], (x + 3-8, y + 3 + 50 + 8, sizeBox-6, sizeBox-6))
+            colorIndex+=1
+            pygame.draw.rect(win, BLACK_COLOR, (x-8 + distanceBetweenCube, y + 50 + 8, sizeBox, sizeBox))
+            pygame.draw.rect(win, colors[colorIndex], (x + 3-8+ distanceBetweenCube, y + 3 + 50 + 8, sizeBox-6, sizeBox-6))
             index += 70
+            colorIndex+=1
+
         else:
-            pygame.draw.rect(win, BLACK_COLOR, (x-8, y + 50 + 8, 40, 40))
-            pygame.draw.rect(
-                win, colors[i], (x + 3-8, y + 3 + 50 + 8, 40-6, 40-6))
-            pygame.draw.rect(win, BLACK_COLOR, (x-8, y + 50 + 8, 40, 40))
-            pygame.draw.rect(
-                win, colors[i], (x + 3-8, y + 3 + 50 + 8, 40-6, 40-6))
-            pygame.draw.rect(win, BLACK_COLOR, (x-8, y + 50 + 8, 40, 40))
-            pygame.draw.rect(
-                win, colors[i], (x + 3-8, y + 3 + 50 + 8, 40-6, 40-6))
+            pass
+            # pygame.draw.rect(win, BLACK_COLOR, (x-8, y + 50 + 8, sizeBox, sizeBox))
+            # pygame.draw.rect(
+            #     win, colors[colorIndex], (x + 3-8, y + 3 + 50 + 8, sizeBox-6, sizeBox-6))
+            # colorIndex+=1
+            
+            # pygame.draw.rect(win, BLACK_COLOR, (x-8+ distanceBetweenCube, y + 50 + 8, sizeBox, sizeBox))
+            # pygame.draw.rect(
+            #     win, colors[colorIndex], (x + 3-8+ distanceBetweenCube, y + 3 + 50 + 8, sizeBox-6, sizeBox-6))
+            # colorIndex+=1
+            
+            # pygame.draw.rect(win, BLACK_COLOR, (x-8+ distanceBetweenCube, y + 50 + 8, sizeBox, sizeBox))
+            # pygame.draw.rect(
+            #     win, colors[colorIndex], (x + 3-8+ distanceBetweenCube, y + 3 + 50 + 8, sizeBox-6, sizeBox-6))
+            # colorIndex+=1
+            
             index += 90
 
     temp = 0
