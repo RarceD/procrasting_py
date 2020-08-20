@@ -2,9 +2,16 @@ from separasilabas import *
 import sys
 import pygame
 
+# Get data from command line:
 # print ('Argument List:', str(sys.argv))
 # palabra = str(sys.argv[1])
-palabra = 'gato'
+
+# Get data from file:
+file = open("input.txt","r+") 
+inputFile = file.readlines()
+file.close()
+palabra = inputFile[1][:-1]
+
 silabas = silabizer()
 syllables = silabas(palabra)
 print(syllables)
@@ -15,9 +22,8 @@ pygame.init()
 win_x = 500
 win_y = 700
 win = pygame.display.set_mode((win_x, win_y))  # dimensions of it
-# bg = pygame.image.load('example.jpeg')
 pygame.display.set_caption("Syllable Game")  # title of this shit of game
-clock = pygame.time.Clock()  # Don't have any idea about it
+clock = pygame.time.Clock() 
 
 # create a instance of the chracter and bullets
 font = pygame.font.SysFont('bitstreamverasans', 50, True, False)
@@ -31,7 +37,7 @@ centerLetter = {
     4: 50,
     5: 60,
     6: 78,
-    7: 70,
+    7: 90,
     8: 120,
     9: 165,
 }

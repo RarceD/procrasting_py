@@ -1,0 +1,4 @@
+_______PALABRA_________:
+perros
+_______IMAGEN__________
+foto
