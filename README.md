@@ -12,7 +12,7 @@ Not very ambitious,
 ## Getting Started ##
 ### Game
 - Game -> A **platform game** for getting start
-
+- An educational game for childrend to learn diferents classes
 ### Face Detection
 - Face_detection_game -> Control the previous game with your face
 ### Genetic Algorithm
