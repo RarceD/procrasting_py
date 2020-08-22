@@ -7,7 +7,7 @@ import pygame
 # palabra = str(sys.argv[1])
 
 # Get data from file:
-palabra="gato"
+palabra="patos"
 imgSrc="img.png"
 try:
     file = open("input.txt", "r+")
@@ -21,7 +21,7 @@ except:
 silabas = silabizer()
 syllables = silabas(palabra)
 print(syllables)
-BACK_COLOR = (157, 209, 237)
+BACK_COLOR = (255, 255, 255)
 BLACK_COLOR = (0, 0, 0)
 pygame.init()
 
@@ -32,7 +32,8 @@ pygame.display.set_caption("Syllable Game")  # title of this shit of game
 clock = pygame.time.Clock()
 
 # create a instance of the chracter and bullets
-font = pygame.font.SysFont('bitstreamverasans', 50, True, False)
+# font = pygame.font.SysFont('arial', 50, True, False)
+font = pygame.font.Font("bLetter.ttf", 50)
 imgImported = True
 try:
     image = pygame.image.load(imgSrc)
@@ -53,6 +54,18 @@ centerLetter = {
     9: 165,
     10: 195,
     11: 200,
+}
+centerWord = {
+    2: 60,
+    3: 60,
+    4: 40,#
+    5: 50,#
+    6: 60,#
+    7: 70,
+    8: 80,#
+    9: 85,#
+    10: 95,
+    11: 100,
 }
 colors = [
     (230, 21, 21),
@@ -88,14 +101,14 @@ def renderGameWindow():
     pygame.draw.rect(win, BACK_COLOR, (23, 23, win_x-40-6, 300-6))
     if (imgImported):
         win.blit(image, (75, 50))
-
     pygame.draw.rect(win, BLACK_COLOR, (20, 350, win_x-40, 100))
     pygame.draw.rect(win, BACK_COLOR, (20+3, 350+3, win_x-40-6, 100-6))
 
     index = 0
 
     text = font.render(palabra, 1, BLACK_COLOR)
-    win.blit(text, (win_x/2 - adjust, 370))
+
+    win.blit(text, (win_x/2 - centerWord[len(palabra)], 380))
     # print(palabra, len(palabra))
     # Print the syllables:
     colorIndex = 0
@@ -105,7 +118,7 @@ def renderGameWindow():
         t = font.render(str(syl), 1, BLACK_COLOR)
         x = win_x/2 - adjust + index
         y = 450 + 50 + 8
-        win.blit(t, (x, y - 58))
+        win.blit(t, (win_x/2 - adjust + index, y - 58))
         # print(len(str(syl)), x)
         if (len(str(syl)) == 1):
             pygame.draw.rect(win, BLACK_COLOR, (x-8, y, sizeBox, sizeBox))

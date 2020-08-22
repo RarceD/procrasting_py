@@ -3,4 +3,6 @@ var serveStatic = require('serve-static');
 
 connect()
     .use(serveStatic(__dirname))
-    .listen(8080, () => console.log('Server running on 8080...'));
+    .listen(5050, () => console.log('Server running on 5050...'));
+
+//The adress is: http://localhost:5050/
