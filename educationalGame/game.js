@@ -3,11 +3,12 @@ HEIGHT =  800;
 
 function setup() {
   createCanvas(LENGTH, HEIGHT);
-  player = new Player(123,123);
+  player = new Player(123,700);
 }
 let pos = 10;
 let i = 1;
 let continueMoving = false;
+let value =0 ;
 function draw() {
   //I first create the background and flor:
   background(155, 245, 250);
@@ -22,6 +23,8 @@ function draw() {
   if (player.keepMoving){
     player.move();
   }
+  fill(value);
+  rect(25, 25, 50, 50);
 }
 
 class Player {
@@ -31,7 +34,7 @@ class Player {
     this.keepMoving = false;
   }
   draw() {
-    rect(this.x,this.y, 529, 55, 20);
+    circle(this.x,this.y, 20);
   }
   move(){
     if (mouseX > LENGTH/2){
@@ -46,4 +49,16 @@ function mousePressed() {
 }
 function mouseReleased() {
   player.keepMoving = false;
+}
+function doubleClicked() {
+  if (value === 0) {
+    value = 255;
+    player.y-=100;
+  } else {
+    value = 0;
+    player.y-=100;
+
+    // player.y+=10;
+
+  }
 }

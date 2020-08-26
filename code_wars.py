@@ -155,11 +155,31 @@ def array_diff(a, b):
         return sol
     else:
         return a
+def digital_root(n):
+    sol = int(n)
+    word = str(n)
+    while (len(word) > 1):
+        sol = 0
+        for l in word:
+            sol += int(l)
+        word = str(sol)
+    return sol
 
-
-print(array_diff([1,2,2], []))
-print(array_diff([1, 2, 2], [1]))
-print(array_diff([-17, -13, -15, -13, 0, 5, -12, -8, 6, -4, -19, 1, 0, -4],[-10, 8]))
+def descending_order(num):
+    l =[]
+    if len(str(num))>1:
+        for x in str(num):
+            l.append(x)
+        l = sorted(l, reverse=True)
+        sol=""
+        for element in l:
+            sol+=str(element)
+        return int(sol)
+    else:
+        return num
+    
+# print(digital_root(16))
+print(descending_order(987654321))
 
 
 # programming language:
