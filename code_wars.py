@@ -177,21 +177,21 @@ def descending_order(num):
         return int(sol)
     else:
         return num
-    
-# print(digital_root(16))
-print(descending_order(987654321))
 
+def get_count(input_str):
+    num_vowels = 0
+    counts = {i:0 for i in 'aeiou'}
+    for l in input_str:
+        if l in counts:
+            num_vowels += 1
+    return num_vowels
 
-# programming language:
+def disemvowel(string):
+    for d in 'aeiouAEIOU':
+        string = string.replace(d, '')
+    return string
 
-# java: 1387
-# javascript: 966
-# .NET: 703º
-# python: 539
+# print(disemvowel(16))
+print(disemvowel("This website is for losers LOL!"))
 
-# git
-# openCV - sistemas de visión artificial
-# curso de EPLAN
-# openGL
-# python
-# C++ and SQL
+# FzPUENy9Kgsc
